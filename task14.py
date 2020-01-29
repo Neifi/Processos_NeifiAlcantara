@@ -34,13 +34,7 @@ def substitueix(x, y, s):
         f.close()
         s.release()
         busca(y, s)
-def fill(s,x):
-    while true:
-        if e == 'q' or e2 == 'q':
-            break;
-        rr = r.recv()
-        rr2 = r2.recv()
-        substitueix(rr, rr2, s)
+
 
 def inici():
     f = open('fitxer.txt', 'w')
@@ -49,13 +43,39 @@ def inici():
     f.close()
     #print open('fitxer.txt', 'ro').read()
 
+def fill(p, s):
+
+    while True:
+        p.poll()
+        n = p.recv()
+        if n == 'q':
+            break
+        p.poll()
+        n2 = p.recv()
+        if n2 == 'q':
+            break
+        substitueix(n, n2, s)
+
 
 if __name__ == '__main__' :
+
     inici()
-    print("Ingresa un valor")
-    x = raw_input()
-    print("Ingresa otro valor")
-    y = raw_input()
-    s = Semaphore()
-    r,r2,e,e2 = Pipe()
-    
+    #x = sys.argv[1]
+    #busca(x)
+
+    s = Semaphore(1)
+    a, b = Pipe()
+    p1 = Process(target=fill, args=[b, s])
+    p1.start()
+    while True:
+        e = raw_input('Nombre a substituir: ')
+        a.send(e)
+        if e == 'q':
+            break
+        e = raw_input('Nombre a substitud: ')
+        a.send(e)
+        if e == 'q':
+            break
+        time.sleep(1)
+    p1.join()
+    #substitueix(x)
